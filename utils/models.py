@@ -91,6 +91,7 @@ class QuantizationLayer(nn.Module):
 
     def forward(self, events):
         # points is a list, since events can have any size
+        breakpoint()
         B = int((1+events[-1,-1]).item())
         num_voxels = int(2 * np.prod(self.dim) * B)
         vox = events[0].new_full([num_voxels,], fill_value=0)
@@ -118,8 +119,8 @@ class QuantizationLayer(nn.Module):
             idx = idx_before_bins + W * H * i_bin
             vox.put_(idx.long(), values, accumulate=True)
 
-        vox = vox.view(-1, 2, C, H, W)
-        vox = torch.cat([vox[:, 0, ...], vox[:, 1, ...]], 1)
+        vox = vox.view(-1, 2, C, H, W)  # (batch, 2, bin, height, width)
+        vox = torch.cat([vox[:, 0, ...], vox[:, 1, ...]], 1)  # (batch, 2 * bin, height, width)
 
         return vox
 
